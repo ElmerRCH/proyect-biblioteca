@@ -1,49 +1,14 @@
 from library_data import *
-from routes import usuarios
-from models.usuario import User
-from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure
-from fastapi import FastAPI, HTTPException, Response
+from routes import usuarios,books,bibliotecarios
+from fastapi import FastAPI, Response
 
 app = FastAPI()
 app.include_router(usuarios.router, prefix="/usuarios", tags=["usuarios"])
+app.include_router(books.router, prefix="/books", tags=["books"])
+app.include_router(bibliotecarios.router, prefix="/bibliotecarios", tags=["bibliotecarios"])
 
-db_users = []
-db_books = []
-
-client = MongoClient('mongodb://mongodb:27017')
-db = client['biblioteca']
-users_collection = db['usuarios']
 
 @app.get("/")
 async def root(response: Response = Response()):
     response.status_code = 403
     return 'hola'
-
-@app.get("/check-mongodb-connection")
-def check_mongodb_connection():
-    try:
-        client.admin.command("ping")
-        return {"message": "Conexión exitosa a MongoDB"}
-    except ConnectionFailure:
-        raise HTTPException(status_code=500, detail="Error al conectar a MongoDB")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-# Rutas para operaciones CRUD de libros
-@app.post("/books/", response_model=Book)
-def create_book(book: Book):
-    db_books.append(book)
-    return book
-
-@app.get("/books/", response_model=List[Book])
-def read_books():
-    return db_books
-
-@app.get("/books/{book_id}", response_model=Book)
-def read_book(book_id: int):
-    for book in db_books:
-        if book.id == book_id:
-            return book
-    raise HTTPException(status_code=404, detail="Book not found")
