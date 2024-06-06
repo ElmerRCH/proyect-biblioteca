@@ -2,7 +2,8 @@ from pymongo import MongoClient
 from fastapi import APIRouter, HTTPException, Depends
 from models.token import Token, create_access_token, verify_token
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from models.usuario import User, UserCreate, UserInDB, get_password_hash, verify_password
+from util.library_util import get_password_hash, verify_password
+from models.usuario import User, UserCreate, UserInDB
 from enums.connection import Conection
 
 router = APIRouter()
