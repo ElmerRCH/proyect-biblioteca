@@ -43,20 +43,23 @@ def authenticate_user(email: str, password: str):
     user = users_collection.find_one({"email": email})
     if not user:
         return False
-    
+
     if not verify_password(password, user['hashed_password']):
         return False
     return user
 
-@router.get("/usuarios/me", response_model=User)
+@router.get("/check/me")
 def read_users_me(token: str = Depends(oauth2_scheme)):
+
     credentials_exception = HTTPException(
         status_code=401,
         detail="No se pudieron validar las credenciales",
         headers={"WWW-Authenticate": "Bearer"},
     )
     token_data = verify_token(token, credentials_exception)
-    user = client.get(token_data.email)
+    # user = client.get(token_data.email)
+    user = users_collection.find_one({"email": token_data.email})
     if user is None:
         raise credentials_exception
-    return user
+
+    return {'user':user['email']}
