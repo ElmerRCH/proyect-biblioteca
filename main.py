@@ -1,5 +1,6 @@
 from library_data import *
 from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure
 from fastapi import FastAPI, HTTPException, Form, Response
 
 app = FastAPI()
@@ -7,30 +8,43 @@ app = FastAPI()
 db_users = []
 db_books = []
 
-client = MongoClient('mongodb://localhost:27017/')
+client = MongoClient('mongodb://mongodb:27017')
 db = client['biblioteca']
-users_collection = db['users']
+users_collection = db['usuarios']
 
 @app.get("/")
 async def root(response: Response = Response()):
     response.status_code = 403
     return 'hola'
 
-@app.post("/users/", response_model=User)
+@app.get("/check-mongodb-connection")
+def check_mongodb_connection():
+    try:
+        client.admin.command("ping")
+        return {"message": "Conexión exitosa a MongoDB"}
+    except ConnectionFailure:
+        raise HTTPException(status_code=500, detail="Error al conectar a MongoDB")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/users/")
 def create_user(user: User):
-    db_users.append(user)
-    return user
+   # Verifica si el usuario ya existe
+    if users_collection.find_one({"email": user.email}):
+        raise HTTPException(status_code=400, detail="El usuario con este email ya existe")
 
-@app.get("/users/", response_model=List[User])
-def read_users():
-    return db_users
+    # Convertir el modelo de usuario a un diccionario y guardar en MongoDB
+    user_dict = user.dict()
+    _ = users_collection.insert_one(user_dict)
+    
+    
+    return 'echo'
 
-@app.get("/users/{user_id}", response_model=User)
-def read_user(user_id: int):
-    for user in db_users:
-        if user.id == user_id:
-            return user
-    raise HTTPException(status_code=404, detail="User not found")
+
+
+
+
 
 # Rutas para operaciones CRUD de libros
 @app.post("/books/", response_model=Book)

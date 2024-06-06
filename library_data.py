@@ -1,12 +1,13 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List,Optional
 
 # Esquemas de datos
 class User(BaseModel):
+
     username: str
     email: str
     password: str
-
+    
 
 class Book(BaseModel):
     title: str
@@ -14,7 +15,6 @@ class Book(BaseModel):
     genre: str
     year: int
     copies_available: int
-
 
 class Transaction(BaseModel):
     user_id: str
