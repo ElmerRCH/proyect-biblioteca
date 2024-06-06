@@ -1,9 +1,12 @@
 from pydantic import BaseModel, EmailStr
-from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+class UserInDB(BaseModel):
+    username: str
+    email: EmailStr
+    hashed_password: str
 
 class User(BaseModel):
 
