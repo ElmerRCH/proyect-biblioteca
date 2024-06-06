@@ -1,13 +1,9 @@
+from typing import List
 from pydantic import BaseModel
-from typing import List,Optional
+
+
 
 # Esquemas de datos
-class User(BaseModel):
-
-    username: str
-    email: str
-    password: str
-    
 
 class Book(BaseModel):
     title: str
