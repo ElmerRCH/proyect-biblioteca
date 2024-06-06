@@ -16,7 +16,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 @router.post("/register/")
 def crear_usuario(bibliotecario: BibliotecarioCreate):
-
+    
     if bibliotecario_collection.find_one({"email": bibliotecario.email}):
         raise HTTPException(status_code=400, detail="El bibliotecario con este email ya existe")
     hashed_password = get_password_hash(bibliotecario.hashed_password)
@@ -27,7 +27,6 @@ def crear_usuario(bibliotecario: BibliotecarioCreate):
         hashed_password = hashed_password,
         )
     
-    print('new_bibliotecario::::',new_bibliotecario)
     bibliotecario_collection.insert_one(new_bibliotecario.dict())
 
     return 'echo'
