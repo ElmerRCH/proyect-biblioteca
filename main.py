@@ -1,9 +1,12 @@
 from library_data import *
+from .routes import usuarios
+from models.usuario import User
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
-from fastapi import FastAPI, HTTPException, Form, Response
+from fastapi import FastAPI, HTTPException, Response
 
 app = FastAPI()
+app.include_router(usuarios.router, prefix="/usuarios", tags=["usuarios"])
 
 db_users = []
 db_books = []
@@ -28,7 +31,7 @@ def check_mongodb_connection():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/users/")
+"""@app.post("/users/")
 def create_user(user: User):
    # Verifica si el usuario ya existe
     if users_collection.find_one({"email": user.email}):
@@ -38,13 +41,10 @@ def create_user(user: User):
     user_dict = user.dict()
     _ = users_collection.insert_one(user_dict)
     
-    
+
     return 'echo'
 
-
-
-
-
+"""
 
 # Rutas para operaciones CRUD de libros
 @app.post("/books/", response_model=Book)
