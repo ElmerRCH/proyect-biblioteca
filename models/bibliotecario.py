@@ -11,7 +11,7 @@ class BibliotecarioCreate(BaseModel):
     username: str
     email: EmailStr
     password: str
-    date_of_admission = datetime
+    date_of_admission: datetime = datetime.now()
     
-class UserInDB(BibliotecarioCreate):
+class BibliotecarioInDB(BibliotecarioCreate):
    pass # se hereda la clase BibliotecarioCreate

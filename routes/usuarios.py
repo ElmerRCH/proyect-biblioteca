@@ -2,7 +2,7 @@ from pymongo import MongoClient
 from fastapi import APIRouter, HTTPException, Depends
 from models.token import Token, create_access_token, verify_token
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from util.library_util import get_password_hash, verify_password
+from util.library_util import get_password_hash, verify_password,authenticate
 from models.usuario import User, UserCreate, UserInDB
 from enums.connection import Conection
 
@@ -27,27 +27,19 @@ def crear_usuario(user: UserCreate):
     
 @router.post("/auth")
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-
+    print('llego...........')
     #username es gmail
-    user = authenticate_user(form_data.username, form_data.password)
+    user = authenticate(form_data.username, form_data.password,users_collection)
     if not user:
         raise HTTPException(
             status_code=401,
             detail="Email o contraseña incorrectos",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
+    
     access_token = create_access_token({"sub": user['email']})
     return {"access_token": access_token, "token_type": "bearer"}
     
-def authenticate_user(email: str, password: str):
-    user = users_collection.find_one({"email": email})
-    if not user:
-        return False
-
-    if not verify_password(password, user['hashed_password']):
-        return False
-    return user
 
 @router.get("/check/me")
 def read_users_me(token: str = Depends(oauth2_scheme)):
@@ -62,5 +54,5 @@ def read_users_me(token: str = Depends(oauth2_scheme)):
     user = users_collection.find_one({"email": token_data.email})
     if user is None:
         raise credentials_exception
-
-    return {'user':user['email']}
+    
+    return {'user':user['hashed_password']}
