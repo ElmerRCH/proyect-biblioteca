@@ -5,12 +5,12 @@ class Bibliotecario(BaseModel):
 
     #username: str
     email: str
-    hashed_password: str
+    password: str
     
 class BibliotecarioCreate(BaseModel):
     username: str
     email: EmailStr
-    hashed_password: str
+    password: str
     date_of_admission: datetime = datetime.now()
     
 class BibliotecarioInDB(BibliotecarioCreate):

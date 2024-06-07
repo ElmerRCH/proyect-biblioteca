@@ -11,12 +11,23 @@ client = MongoClient(Conection.URL.value)
 
 db = client['biblioteca']
 books_collection = db['books']
+bibliotecario_collection = db['bibliotecarios']
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 @router.post("/register/")
-def crear_usuario(book: BookCreate):
+def crear_usuario(book: BookCreate,token: str = Depends(oauth2_scheme)):
     
+    credentials_exception = HTTPException(
+        status_code=401,
+        detail="No se pudieron validar las credenciales",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    token_data = verify_token(token, credentials_exception)
+    bibliotecario = bibliotecario_collection.find_one({"email": token_data.email})
+    
+    if bibliotecario is None:
+        raise credentials_exception
     if books_collection.find_one({"titulo": book.titulo}):
         raise HTTPException(status_code=400, detail="El libro ya existe")
     
@@ -30,6 +41,6 @@ def crear_usuario(book: BookCreate):
         estado=book.estado
     )
     books_collection.insert_one(new_book.dict())
-
+    
     return 'echo'
     

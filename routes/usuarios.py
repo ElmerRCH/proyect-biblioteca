@@ -27,16 +27,16 @@ def crear_usuario(user: UserCreate):
     
 @router.post("/auth")
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-
+    print('llego...........')
     #username es gmail
-    user = authenticate(form_data.username, form_data.password)
+    user = authenticate(form_data.username, form_data.password,users_collection)
     if not user:
         raise HTTPException(
             status_code=401,
             detail="Email o contraseña incorrectos",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
+    
     access_token = create_access_token({"sub": user['email']})
     return {"access_token": access_token, "token_type": "bearer"}
     
@@ -54,5 +54,5 @@ def read_users_me(token: str = Depends(oauth2_scheme)):
     user = users_collection.find_one({"email": token_data.email})
     if user is None:
         raise credentials_exception
-
-    return {'user':user['email']}
+    
+    return {'user':user['hashed_password']}
