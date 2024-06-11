@@ -4,9 +4,9 @@ from typing import Optional
 class Book(BaseModel):
     #id: Optional[str] = None
     titulo: str
-    autor: str
+    autor: list
     editorial: str
-    año_publicacion: int
+    año_publicacion: str
     genero: str
     descripcion: Optional[str] = None
     estado: str  # Ejemplo: "disponible", "prestado", "reservado"
